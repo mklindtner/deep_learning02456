@@ -1,3 +1,4 @@
+#%%
 import math
 import timeit
 
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import resampy
 from IPython.display import Audio
+
 
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)
@@ -81,7 +83,10 @@ def plot_sweep(
     axis.yaxis.grid(True, alpha=0.67)
     #figure.suptitle(f"{title} (sample rate: {sample_rate} Hz)")
     plt.colorbar(cax)
+
+#%%
 import dac
+#from dac import utils
 from audiotools import AudioSignal
 import torch
 import torchaudio
@@ -90,6 +95,7 @@ import torchaudio.functional as F
 import torchaudio.transforms as T
 sample_rate = 48000
 waveform = get_sine_sweep(sample_rate)
+
 # Download a model
 model_path = dac.utils.download(model_type="44khz")
 model = dac.DAC.load(model_path)
@@ -124,3 +130,5 @@ x = dac.DACFile.load("compressed.dac")
 y = model.decompress(x)
 # Write to file
 y.write('output.wav')
+
+# %%
