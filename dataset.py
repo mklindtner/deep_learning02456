@@ -28,15 +28,19 @@ class NoiseSpeechDataset(Dataset):
     def __getitem__(self, idx):
         file_path = os.path.join(self.directory, self.files_ns[idx])
         waveform, sample_rate = torchaudio.load(file_path)
-
-        
+        # print("filepath:", file_path)
+        # print(waveform.shape)
         seconds = waveform.shape[1]/sample_rate
-
+        # f'seconds:{seconds}'
+        # print(seconds)
+        # print("-----")
         if self.is_speech: #speech directory
             if seconds > 5: 
-                random_start = random.randrange(0, waveform.shape[1]-sample_rate*len_speech)
-                waveform = waveform[random_start:sample_rate*self.len_speech]
+                random_start = random.randrange(0, waveform.shape[1]-sample_rate*self.len_speech)
+                #print("Start:", random_start, " End: ",random_start+sample_rate*self.len_speech)
+                waveform = waveform[:,random_start:random_start+sample_rate*self.len_speech]
             else: 
+                print("inside speech else")
                 #padding here
                 pad_len = len_speech*sample_rate - waveform.shape[1]
                 # waveform = F.pad_waveform(waveform, 0, pad_len, "constant")
@@ -46,7 +50,7 @@ class NoiseSpeechDataset(Dataset):
         else: #noise directory
             if seconds > 5:
                 random_start = random.randrange(0, waveform.shape[1]-sample_rate*len_speech)
-                waveform = waveform[random_start:sample_rate*self.len_speech]            
+                waveform = waveform[:,random_start:random_start+sample_rate*self.len_speech]            
             else:
                 while(waveform.shape[1]<sample_rate*len_speech):
                     pad_len = len_speech*sample_rate - waveform.shape[1]
@@ -54,6 +58,9 @@ class NoiseSpeechDataset(Dataset):
                     # print("noise")
                     waveform = torch.cat((waveform,waveform[0:num_samples_to_pad]))
         
+        # print("<---->")
+        #print(waveform.shape[1]/sample_rate)
+
         #Resample here
         transform = T.Resample(sample_rate, self.target_sample_rate)    
         waveform = transform(waveform)
@@ -61,7 +68,7 @@ class NoiseSpeechDataset(Dataset):
         return waveform
 
 # Specify the directory containing your data
-dataset_directory = 'noisespeech_pairs'
+# dataset_directory = 'noisespeech_pairs'
 dataset_noise = "Noise"
 dataset_speech = "Speech"
 
@@ -76,9 +83,9 @@ data_loader_noise = DataLoader(dataset_noise, batch_size=16, shuffle=True)
 #Test Data_loader
 
 
-foo = next(iter(data_loader_speech))
+# foo = next(iter(data_loader_speech))
 bar = next(iter(data_loader_noise))
 # print(foo)
-# print(bar)
+print(bar)
 # print("---")
 # print(bar)
