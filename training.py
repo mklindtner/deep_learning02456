@@ -48,9 +48,9 @@ for i in range(epochs):
         # Remove zero padding at the end         
         y = y[:, :, :speech.size(2)]
         
-        loss = F.signal_to_noise_ratio(y, speech  )   
+        loss = F.SignalToNoise(y, speech)   
             #y is guess
-            #x is label -- Should be speech instead
+            #speech is label
             
 
         #Optimizer AdamW here
@@ -58,7 +58,7 @@ for i in range(epochs):
         loss.backward()
         optimizer.step()
         print(f'loss: {loss}')    
-        
+
 
         if idx % 50 == 0:
             # print("test")
