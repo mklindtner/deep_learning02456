@@ -9,7 +9,7 @@ from audiotools import AudioSignal
 from torch.utils.data import Dataset, DataLoader
 import os
 import random
-
+import soundfile
 # p = Path('.')
 # ns_Data = list(p.glob('noisespeech_pairs/*'))
 # s_Data = list(p.glob('Speech/*'))
@@ -27,7 +27,7 @@ class NoiseSpeechDataset(Dataset):
 
     def __getitem__(self, idx):
         file_path = os.path.join(self.directory, self.files_ns[idx])
-        waveform, sample_rate = torchaudio.load(file_path)
+        waveform, sample_rate = torchaudio.load(file_path,backend="soundfile")
         # print("filepath:", file_path)
         # print(waveform.shape)
         seconds = waveform.shape[1]/sample_rate

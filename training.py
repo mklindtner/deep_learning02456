@@ -3,6 +3,7 @@ import os
 from dataset import data_loader_speech_train, dataset_speech_test, data_loader_noise
 import torchaudio.functional as F
 import torch
+import argbind
 from audiotools import AudioSignal
 # from torchmetrics.audio import SignalNoiseRatio
 
@@ -11,7 +12,6 @@ model = dac.DAC.load(model_path)
 # model.to('cuda')
 
 epochs = 1
-
 
 #Epochs
 for i in range(epochs):
@@ -44,13 +44,13 @@ for i in range(epochs):
         # print(z.shape)       
         
         #label - Doesn't work right now
-        y = model.decode(z)        
-        print(y)
-
-        #Loss SNR heremsd 
+        y = model.decode(z)
+        # Remove zero padding at the end         
+        y = y[:, :, :speech.size(2)]
         
+        loss = F.signal_to_noise_ratio(y, speech    )   
             #y is guess
-            #x is label
+            #x is label -- Should be speech instead
             
 
         #Optimizer AdamW here
