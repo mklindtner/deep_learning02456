@@ -1,16 +1,16 @@
 import dac
 import os
-from dataset import data_loader_speech_train, dataset_speech_test, data_loader_noise
+from dataset import data_loader_speech_train, data_loader_noise
 import torchaudio.functional as F
 import torch
-import argbind
 from audiotools import AudioSignal
+from torchmetrics.audio import SignalNoiseRatio
 # from torchmetrics.audio import SignalNoiseRatio
-
+snr = SignalNoiseRatio()
 model_path = dac.utils.download(model_type="44khz")
 model = dac.DAC.load(model_path)
 # model.to('cuda')
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
 epochs = 1
 
 #Epochs
@@ -35,7 +35,6 @@ for i in range(epochs):
         # signal.to('cuda')
         #Use Decript Model To encode
         x = model.preprocess(signal.audio_data, signal.sample_rate)
-        
         #Generate a batch size of (1,y,z)
         # x = x[None, :, :]
         # x[:,0,0] = 1
@@ -44,21 +43,21 @@ for i in range(epochs):
         # print(z.shape)       
         
         #label - Doesn't work right now
-        y = model.decode(z)
-        # Remove zero padding at the end         
+        y = model.decode(z)        
+        print(y)
+        #Loss SNR heremsd
         y = y[:, :, :speech.size(2)]
-        
-        loss = F.SignalToNoise(y, speech)   
-            #y is guess
-            #speech is label
-            
-
-        #Optimizer AdamW here
+        loss = 1/snr(y,speech)
+        print("loss:", loss)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print(f'loss: {loss}')    
-
+        print(f'loss: {loss}')
+        if loss < 0.3:
+            y_audio_signal = AudioSignal(y.cpu().detach().numpy(), sample_rate=sample_rate)
+            y_audio_signal.write("output.wav")
+            speech_audio_signal = AudioSignal(signal.cpu().detach().numpy(), sample_rate=sample_rate)
+            speech_audio_signal.write("input.wav")
 
         if idx % 50 == 0:
             # print("test")
