@@ -40,7 +40,7 @@ class NoiseSpeechDataset(Dataset):
                 #print("Start:", random_start, " End: ",random_start+sample_rate*self.len_speech)
                 waveform = waveform[:,random_start:random_start+sample_rate*self.len_speech]
             else: 
-                print("inside speech else")
+                # print("inside speech else")
                 #padding here
                 pad_len = len_speech*sample_rate - waveform.shape[1]
                 # waveform = F.pad_waveform(waveform, 0, pad_len, "constant")
@@ -65,27 +65,34 @@ class NoiseSpeechDataset(Dataset):
         transform = T.Resample(sample_rate, self.target_sample_rate)    
         waveform = transform(waveform)
                 
-        return waveform
+        return waveform, self.target_sample_rate
 
 # Specify the directory containing your data
 # dataset_directory = 'noisespeech_pairs'
-dataset_noise = "Noise"
-dataset_speech = "Speech"
+dataset_noise_path = "Noise"
+dataset_speech_path = "Speech"
+dataset_speech_test_path = "Speech_test"
+
 
 # Create the dataset and data loader
 target_sample_rate = 44100
 len_speech = 5
-dataset_speech = NoiseSpeechDataset(dataset_speech, target_sample_rate, len_speech, True)
-dataset_noise =  NoiseSpeechDataset(dataset_noise, target_sample_rate, len_speech, False)
-data_loader_speech = DataLoader(dataset_speech, batch_size=16, shuffle=True)
-data_loader_noise = DataLoader(dataset_noise, batch_size=16, shuffle=True)
 
-#Test Data_loader
+#Dataset / Database
+dataset_speech_train = NoiseSpeechDataset(dataset_speech_path, target_sample_rate, len_speech, is_speech=True)
+dataset_speech_test = NoiseSpeechDataset(dataset_speech_test_path, target_sample_rate, len_speech, is_speech=True)
+dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False)
 
+#Loader
+g_bs = 1
+data_loader_speech_train = DataLoader(dataset_speech_train, batch_size=g_bs, shuffle=True)
+data_loader_speech_test = DataLoader(dataset_speech_test, batch_size=g_bs, shuffle=True)
+data_loader_noise = DataLoader(dataset_noise, batch_size=g_bs, shuffle=True)
 
+# print(f'{next(iter(data_loader_noise))}')
 # foo = next(iter(data_loader_speech))
-bar = next(iter(data_loader_noise))
+# bar = next(iter(data_loader_noise))
 # print(foo)
-print(bar)
+# print(bar)
 # print("---")
 # print(bar)
