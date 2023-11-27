@@ -10,7 +10,7 @@ from audiotools import AudioSignal
 model_path = dac.utils.download(model_type="44khz")
 model = dac.DAC.load(model_path)
 # model.to('cuda')
-
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
 epochs = 1
 
 #Epochs
@@ -48,14 +48,17 @@ for i in range(epochs):
         # Remove zero padding at the end         
         y = y[:, :, :speech.size(2)]
         
-        loss = F.signal_to_noise_ratio(y, speech    )   
+        loss = F.signal_to_noise_ratio(y, speech  )   
             #y is guess
             #x is label -- Should be speech instead
             
 
         #Optimizer AdamW here
-
-
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        print(f'loss: {loss}')    
+        
 
         if idx % 50 == 0:
             # print("test")
