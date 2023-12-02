@@ -69,9 +69,9 @@ class NoiseSpeechDataset(Dataset):
 
 # Specify the directory containing your data
 # dataset_directory = 'noisespeech_pairs'
-dataset_noise_path = "Noise"
-dataset_speech_path = "Speech"
-dataset_speech_test_path = "Speech_test"
+dataset_noise_path = "Audio/Noise"
+dataset_speech_path = "Audio/Speech"
+dataset_speech_test_path = "Audio/Speech_test"
 
 
 # Create the dataset and data loader

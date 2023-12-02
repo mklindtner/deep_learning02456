@@ -172,3 +172,6 @@ depcreated/*
 depcrecated/*
 Speech_test/*
 .vscode
+Audio/*
+input_sounds/*
+output_sounds/*
