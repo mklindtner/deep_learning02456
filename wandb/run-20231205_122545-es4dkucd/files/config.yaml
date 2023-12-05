@@ -1,0 +1,41 @@
+wandb_version: 1
+
+learning_rate:
+  desc: null
+  value: 1.0e-05
+architecture:
+  desc: null
+  value: DAC
+dataset:
+  desc: null
+  value: Audio-DTU
+epochs:
+  desc: null
+  value: 10
+loss:
+  desc: null
+  value: MSE
+_wandb:
+  desc: null
+  value:
+    python_version: 3.9.11
+    cli_version: 0.16.0
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1701775545.843076
+    t:
+      1:
+      - 1
+      - 55
+      2:
+      - 1
+      - 55
+      3:
+      - 16
+      - 23
+      4: 3.9.11
+      5: 0.16.0
+      8:
+      - 5
+      13: linux-x86_64

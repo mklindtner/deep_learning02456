@@ -1,0 +1,140 @@
+{
+    "os": "Linux-5.4.258-1.el7.elrepo.x86_64-x86_64-with-glibc2.17",
+    "python": "3.9.11",
+    "heartbeatAt": "2023-12-05T11:26:25.596042",
+    "startedAt": "2023-12-05T11:26:24.901959",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/zhome/25/e/155273/Desktop/deep_learning02456/training.py",
+    "codePathLocal": "training.py",
+    "codePath": "training.py",
+    "git": {
+        "remote": "git@github.com:mklindtner/deep_learning02456.git",
+        "commit": "6518411c1db7be0fe60d876085245d58ed306a6e"
+    },
+    "email": "mkl@mikiaholding.dk",
+    "root": "/zhome/25/e/155273/Desktop/deep_learning02456",
+    "host": "n-62-30-3",
+    "username": "s205421",
+    "executable": "/zhome/25/e/155273/Desktop/deep_learning02456/dl02456/bin/python3",
+    "cpu_count": 20,
+    "cpu_count_logical": 20,
+    "cpu_freq": {
+        "current": 1344.3065499999998,
+        "min": 1200.0,
+        "max": 3300.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1200.528,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.491,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.274,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.416,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.184,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.702,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.501,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.366,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.48,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 2893.326,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1430.0,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.392,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.34,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1796.075,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.305,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.287,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1310.283,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.409,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1492.385,
+            "min": 1200.0,
+            "max": 3300.0
+        },
+        {
+            "current": 1197.387,
+            "min": 1200.0,
+            "max": 3300.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 65.18729782104492,
+            "used": 6.714836120605469
+        }
+    },
+    "memory": {
+        "total": 125.50973892211914
+    }
+}

@@ -92,7 +92,7 @@ for i in range(epochs):
     
     
     print(f'epoch: {i}\t loss: {g_loss} \t metric: {g_metrics}')
-    # wandb.log({"snr": g_metrics, "loss": g_loss})
+    wandb.log({"snr": g_metrics, "loss": g_loss})
     
     #validation set here
 
@@ -118,9 +118,8 @@ for i in range(epochs):
         y_audio_signal.write(f"output_sounds/output.wav") 
 
         signal_test.to('cpu')
-        # speech_audio_signal = AudioSignal(speech_test, sample_rate=sample_rate)
-        # print(f'signal_to_save: {speech_audio_signal.audio_data}')
-        # speech_audio_signal.write(f'input_sounds/input{i}.wav')
+
         signal_test.write(f'input_sounds/input.wav')
+        wandb.finish()
 
         
