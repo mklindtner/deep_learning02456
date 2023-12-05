@@ -6,6 +6,24 @@ import torch
 import numpy as np
 from audiotools import AudioSignal
 from torchmetrics.audio import SignalNoiseRatio
+import wandb
+import random
+
+# start a new wandb run to track this script
+wandb.init(
+    # set the wandb project where this run will be logged
+    project="02456_deep_learning",
+    
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": 0.00001,
+    "architecture": "DAC",
+    "dataset": "Audio-DTU",
+    "epochs": 10,
+    "loss": "MSE",
+    }
+)
+
 
 # from torchmetrics.audio import SignalNoiseRatio
 snr = SignalNoiseRatio().to('cuda')
@@ -51,9 +69,11 @@ for i in range(epochs):
         #Loss SNR here
         y = y[:, :, :speech.size(2)]
         
-        #MSE LOSS, why does teh mse_loss have a backwards function, are we using 2 optimizers right now?
+        #MSE LOSS, why does the mse_loss have a backwards function, are we using 2 optimizers right now?
         loss = torch.nn.functional.mse_loss(y, speech)
-        
+        # loss = 1/snr(y, speech)
+
+
         #Optimizer
         optimizer.zero_grad()
         loss.backward()
@@ -72,18 +92,35 @@ for i in range(epochs):
     
     
     print(f'epoch: {i}\t loss: {g_loss} \t metric: {g_metrics}')
-    x = model.preprocess(signal_test.audio_data, signal_test.sample_rate)
-    z, codes, latents, _, _ = model.encode(x) 
+    # wandb.log({"snr": g_metrics, "loss": g_loss})
     
-    y = model.decode(z)
-    y = y[:, :, :speech.size(2)]
-    y_numpy = y.cpu().detach().numpy()
-    y_normalized = np.clip(y_numpy, -1.0, 1.0)  
-    y_audio_signal = AudioSignal(y_normalized, sample_rate=sample_rate)
-    
-    
-    #Don't know why input_sounds isn't writing to file
-    print("outputting to file")
-    # y_audio_signal.write(f"output_sounds/output{i}.wav")
-    speech_audio_signal = AudioSignal(speech_test, sample_rate=sample_rate)
-    speech_audio_signal.write(f"input_sounds/input{i}.wav")
+    #validation set here
+
+
+    #save model
+    if i == (epochs-1):
+        #Use model for audio file
+        x = model.preprocess(signal_test.audio_data, signal_test.sample_rate)
+        z, codes, latents, _, _ = model.encode(x) 
+        
+        y = model.decode(z)
+
+        #Be able to hear file
+        y = y[:, :, :speech.size(2)]
+        y_numpy = y.cpu().detach().numpy()
+        y_normalized = np.clip(y_numpy, -1.0, 1.0)  
+        y_audio_signal = AudioSignal(y_normalized, sample_rate=sample_rate)
+
+        #to Cpu
+        
+        #Don't know why input_sounds isn't writing to file
+        print("outputting to file")
+        y_audio_signal.write(f"output_sounds/output.wav") 
+
+        signal_test.to('cpu')
+        # speech_audio_signal = AudioSignal(speech_test, sample_rate=sample_rate)
+        # print(f'signal_to_save: {speech_audio_signal.audio_data}')
+        # speech_audio_signal.write(f'input_sounds/input{i}.wav')
+        signal_test.write(f'input_sounds/input.wav')
+
+        
