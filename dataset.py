@@ -39,10 +39,8 @@ class NoiseSpeechDataset(Dataset):
         size_val_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
         size_test_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
         
-        # Spit each part of the files array and take out each part
-            #This is okay because 
-            #1)we shuffled the array so it's random
-            #2)we use a seed so the shuffle, so train, val and test are seperate
+
+        #use a seed to shuffle - making each split identitical each time the dataset is initialized
         split_train = int(size_train_data)
         split_val = int(size_val_data) + split_train
         split_test = int(size_test_data) + split_val + split_train
@@ -129,7 +127,7 @@ len_speech = 5
 
 #Dataset
 dataset_speech_train = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
-dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="test")
+dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="validation")
 dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False, dataset_type="noise")
 
 #Dataset / Database - old dataset

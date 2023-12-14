@@ -58,13 +58,16 @@ for i in range(epochs):
         speech, sample_rate = speech
         noise, _ = noise
         # noise.to('cuda')
-        
+
         # Combine noise, speech
         signal = F.add_noise(speech,noise, snr=torch.tensor([[2.0]]))
         signal = AudioSignal(signal, sample_rate=sample_rate)
+        
         if tst_cnt == 0:
+            print(f"idx: {tst_cnt}")        
             signal.write(f'input_sounds/input_test{tst_cnt}.wav')                
             tst_cnt += 1
+
         signal.to('cuda')
         speech = speech.to('cuda')
         
@@ -96,7 +99,9 @@ for i in range(epochs):
         # print(f'snr: {metrics}')
         g_loss += loss
         g_metrics += metrics
-    
+
+        print(f'next batch in epoch: {i}')
+        torch.cuda.empty_cache()
     
     print(f'epoch: {i}\t loss: {g_loss} \t metric: {g_metrics}')
     wandb.log({"snr": g_metrics, "loss": g_loss})
