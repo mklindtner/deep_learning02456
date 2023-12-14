@@ -35,7 +35,7 @@ class NoiseSpeechDataset(Dataset):
         # random.seed(6977)
 
         # Sizes for each part of the array
-        size_train_data = int(len(self.files_ns) * 0.70)  # 60% of the total size
+        size_train_data = int(len(self.files_ns) * 0.70)  # 70% of the total size
         size_val_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
         size_test_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
         
@@ -56,7 +56,6 @@ class NoiseSpeechDataset(Dataset):
     def __getitem__(self, idx):         
         file_path = None
         
-        #Fix 
         if self.type == "train":            
             item = random.choice(self.indicies_train)
             file_path = os.path.join(self.directory, item)            
@@ -69,8 +68,6 @@ class NoiseSpeechDataset(Dataset):
         else: #our local noise directory
             file_path = os.path.join(self.directory, self.files_ns[idx]) 
         
-
-
 
         waveform, sample_rate = torchaudio.load(file_path,backend="soundfile")
         # print("filepath:", file_path)
