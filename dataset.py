@@ -10,23 +10,70 @@ from torch.utils.data import Dataset, DataLoader
 import os
 import random
 import soundfile
-# p = Path('.')
-# ns_Data = list(p.glob('noisespeech_pairs/*'))
-# s_Data = list(p.glob('Speech/*'))
+import numpy as np
 
 class NoiseSpeechDataset(Dataset):
-    def __init__(self, directory, target_sample_rate, len_speech, is_speech):
+    def __init__(self, directory, target_sample_rate, len_speech, is_speech, dataset_type):
         self.target_sample_rate = target_sample_rate
         self.directory = directory
         self.len_speech = len_speech
         self.files_ns = os.listdir(directory)
         self.is_speech = is_speech
+        self.type = dataset_type
+
+        #split the dataset into train, val and test
+        self.initialize_dataset_state() 
+
+    def initialize_dataset_state(self):
+        if self.type == "noise":
+            return
+
+        #By using a seed we guarantee the shuffle is always the same for training, validation and test sets
+        np.random.seed(6977) 
+        np.random.shuffle(self.files_ns)
+        
+        # random.seed(6977)
+
+        # Sizes for each part of the array
+        size_train_data = int(len(self.files_ns) * 0.70)  # 60% of the total size
+        size_val_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
+        size_test_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
+        
+        # Spit each part of the files array and take out each part
+            #This is okay because 
+            #1)we shuffled the array so it's random
+            #2)we use a seed so the shuffle, so train, val and test are seperate
+        split_train = int(size_train_data)
+        split_val = int(size_val_data) + split_train
+        split_test = int(size_test_data) + split_val + split_train
+
+        #Splits up the entire clean sound directory into three parts
+        self.indicies_train = self.files_ns[0:split_train]
+        self.indicies_val = self.files_ns[split_train:split_val]
+        self.indicies_test = self.files_ns[split_val:split_test]
 
     def __len__(self):
-        return len(self.files_ns) #assumes noisespeech_pairs and speech have same length
+        return len(self.files_ns)
 
-    def __getitem__(self, idx):
-        file_path = os.path.join(self.directory, self.files_ns[idx])
+    def __getitem__(self, idx):         
+        file_path = None
+        
+        #Fix 
+        if self.type == "train":            
+            item = random.choice(self.indicies_train)
+            file_path = os.path.join(self.directory, item)            
+        elif self.type == "val":
+            item = random.choice(self.indicies_val)            
+            file_path = os.path.join(self.directory, item)            
+        elif self.type == "test":
+            item = random.choice(self.indicies_test)
+            file_path = os.path.join(self.directory, item)            
+        else: #our local noise directory
+            file_path = os.path.join(self.directory, self.files_ns[idx]) 
+        
+
+
+
         waveform, sample_rate = torchaudio.load(file_path,backend="soundfile")
         # print("filepath:", file_path)
         # print(waveform.shape)
@@ -34,7 +81,7 @@ class NoiseSpeechDataset(Dataset):
         # f'seconds:{seconds}'
         # print(seconds)
         # print("-----")
-        if self.is_speech: #speech directory
+        if self.is_speech:
             if seconds > 5: 
                 random_start = random.randrange(0, waveform.shape[1]-sample_rate*self.len_speech)
                 #print("Start:", random_start, " End: ",random_start+sample_rate*self.len_speech)
@@ -73,15 +120,22 @@ dataset_noise_path = "Audio/Noise"
 dataset_speech_path = "Audio/Speech"
 dataset_speech_test_path = "Audio/Speech_test"
 
+#Paths for HPC-full-dataset
+dataset_clean_speech_full_path = "/work3/s164396/data/DNS-Challenge-4/datasets_fullband/clean_fullband/read_speech"
 
 # Create the dataset and data loader
 target_sample_rate = 44100
 len_speech = 5
 
-#Dataset / Database
-dataset_speech_train = NoiseSpeechDataset(dataset_speech_path, target_sample_rate, len_speech, is_speech=True)
-dataset_speech_test = NoiseSpeechDataset(dataset_speech_test_path, target_sample_rate, len_speech, is_speech=True)
-dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False)
+#Dataset
+dataset_speech_train = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
+dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="test")
+dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False, dataset_type="noise")
+
+#Dataset / Database - old dataset
+# dataset_speech_train = NoiseSpeechDataset(dataset_speech_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
+# dataset_speech_test = NoiseSpeechDataset(dataset_speech_test_path, target_sample_rate, len_speech, is_speech=True, dataset_type="test")
+# dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False, dataset_type="noise")
 
 #Loader
 g_bs = 1

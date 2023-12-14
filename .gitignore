@@ -175,3 +175,4 @@ Speech_test/*
 Audio/*
 input_sounds/*
 output_sounds/*
+wandb/*
