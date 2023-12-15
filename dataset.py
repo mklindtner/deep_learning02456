@@ -123,8 +123,8 @@ target_sample_rate = 44100
 len_speech = 5
 
 #Dataset
-dataset_speech_train = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
-dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="validation")
+dataset_speech_train = NoiseSpeechDataset(dataset_speech_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
+#dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="validation")
 dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False, dataset_type="noise")
 
 #Dataset / Database - old dataset

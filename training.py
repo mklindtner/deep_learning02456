@@ -127,8 +127,8 @@ for i in range(epochs):
         y_audio_signal = AudioSignal(y_normalized, sample_rate=sample_rate)
 
         #to Cpu
-        
-        #Don't know why input_sounds isn't writing to file
+        torch.save(model.state_dict(), 'model_weights.pth')
+        wandb.save('model_weights.pth')
         print("outputting to file")
         y_audio_signal.write(f"output_sounds/output.wav") 
 
