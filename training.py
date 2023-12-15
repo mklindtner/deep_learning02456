@@ -104,7 +104,9 @@ for i in range(epochs):
         else:
             y_resampled = y_orig
 
+        #paper: https://arxiv.org/pdf/2304.01448.pdf
         # Calculate squim metrics
+        
         #Make the y_resampled into an appropriate tensor for squim
         y_resampled.to('cuda')
         # print(f"speech: {speech[0].shape}\t y_resampled: {y_resampled[0].shape}")
@@ -149,6 +151,12 @@ for i in range(epochs):
         # print(f'snr: {metrics}')
         g_loss += loss
         g_metrics += metrics
+        
+        #Change these metrics as appropriate
+        g_stoi += stoi_hyp[0]
+        g_pesq += pesq_hyp[0]
+        g_si_sdr += si_sdr_hyp[0]
+        g_mos += mos[0]
 
         #Store squim_metrics here
 
