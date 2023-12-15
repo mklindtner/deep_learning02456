@@ -164,7 +164,7 @@ for i in range(epochs):
         # print("<finished a batch")
     
     print(f'epoch: {i}\t loss: {g_loss} \t metric: {g_metrics}')
-    wandb.log({"snr": g_metrics, "loss": g_loss})
+    wandb.log({"snr": g_metrics, "loss": g_loss, "stoi": g_stoi, "pesq": g_pesq, "si_sdr": g_si_sdr, "mos": g_mos})
     
     #validation set here
 
