@@ -108,7 +108,7 @@ class NoiseSpeechDataset(Dataset):
         return waveform, self.target_sample_rate
 
 # Specify the directory containing your data
-# dataset_directory = 'noisespeech_pairs'
+0# dataset_directory = 'noisespeech_pairs'
 dataset_noise_path = "Audio/Noise"
 dataset_speech_path = "Audio/Speech"
 dataset_speech_test_path = "Audio/Speech_test"
