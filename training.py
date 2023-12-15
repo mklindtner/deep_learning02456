@@ -42,12 +42,11 @@ signal_test = F.add_noise(speech_test, noise_test, snr=torch.tensor([[2.0]]))
 signal_test = AudioSignal(signal_test, sample_rate=sample_rate)
 signal_test.to('cuda')
 
-#Use one noice for now
-idy, noise = (next(enumerate(data_loader_noise))) 
-noise, _ = noise
 
-#<delete>
+#testing variables
 tst_cnt = 0
+
+
 
 #Epochs
 for i in range(epochs):
@@ -55,12 +54,12 @@ for i in range(epochs):
     g_metrics = 0
 
     for idx, speech in enumerate(data_loader_speech_train):
-        # idy, noise = (next(enumerate(data_loader_noise))) #a random item gets removed when next is called .. i think        
-
+        noise, n_dim = next(data_loader_noise)
+    
         #Get sounds and sample_rates
         speech, sample_rate = speech
 
-        # noise.to('cuda')
+        noise.to('cuda')
 
         # Combine noise, speech
         signal = F.add_noise(speech,noise, snr=torch.tensor([[2.0]]))

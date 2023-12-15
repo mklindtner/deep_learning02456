@@ -31,8 +31,6 @@ class NoiseSpeechDataset(Dataset):
         #By using a seed we guarantee the shuffle is always the same for training, validation and test sets
         np.random.seed(6977) 
         np.random.shuffle(self.files_ns)
-        
-        # random.seed(6977)
 
         # Sizes for each part of the array
         size_train_data = int(len(self.files_ns) * 0.70)  # 70% of the total size
@@ -117,31 +115,32 @@ dataset_speech_test_path = "Audio/Speech_test"
 
 #Paths for HPC-full-dataset
 dataset_clean_speech_full_path = "/work3/s164396/data/DNS-Challenge-4/datasets_fullband/clean_fullband/read_speech"
+dataset_noise_full_path = "/work3/s164396/data/DNS-Challenge-4/datasets_fullband/noise_fullband"
 
 # Create the dataset and data loader
 target_sample_rate = 44100
 len_speech = 5
 
+
+#Make sure to make a new noise loader, once the old one is exhausted
+def noise_loader(dataset):
+    while True:
+        loader = DataLoader(dataset, batch_size=g_bs, shuffle=True)
+        for data in loader:
+            yield data
+
+
+
 #Dataset
 dataset_speech_train = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
 dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="validation")
-dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False, dataset_type="noise")
+dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, is_speech=False, dataset_type="noise")
 
-#Dataset / Database - old dataset
-# dataset_speech_train = NoiseSpeechDataset(dataset_speech_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
-# dataset_speech_test = NoiseSpeechDataset(dataset_speech_test_path, target_sample_rate, len_speech, is_speech=True, dataset_type="test")
-# dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, False, dataset_type="noise")
-
-#Loader
+#Loaders 
 g_bs = 1
 data_loader_speech_train = DataLoader(dataset_speech_train, batch_size=g_bs, shuffle=True)
 data_loader_speech_test = DataLoader(dataset_speech_test, batch_size=g_bs, shuffle=True)
-data_loader_noise = DataLoader(dataset_noise, batch_size=g_bs, shuffle=True)
+# data_loader_noise = DataLoader(dataset_noise, batch_size=g_bs, shuffle=True)
+data_loader_noise = noise_loader(dataset_noise)
 
-# print(f'{next(iter(data_loader_noise))}')
-# foo = next(iter(data_loader_speech))
-# bar = next(iter(data_loader_noise))
-# print(foo)
-# print(bar)
-# print("---")
-# print(bar)
+
