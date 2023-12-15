@@ -134,7 +134,7 @@ def noise_loader(dataset):
 #Dataset
 dataset_speech_train = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
 dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="validation")
-dataset_noise =  NoiseSpeechDataset(dataset_noise_path, target_sample_rate, len_speech, is_speech=False, dataset_type="noise")
+dataset_noise =  NoiseSpeechDataset(dataset_noise_full_path, target_sample_rate, len_speech, is_speech=False, dataset_type="noise")
 
 #Loaders 
 g_bs = 1
