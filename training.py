@@ -13,6 +13,8 @@ import random
 from torchaudio.pipelines import SQUIM_OBJECTIVE, SQUIM_SUBJECTIVE
 
 
+print("starting training")
+
 # start a new wandb run to track this script
 wandb.init(
     # set the wandb project where this run will be logged
@@ -64,8 +66,9 @@ for i in range(epochs):
     g_si_sdr = 0
     g_mos = 0
     for idx, speech in enumerate(data_loader_speech_train):
+        print("started data_loader_noise")
         noise, _ = next(data_loader_noise)
-    
+        print("passed data_loader_noise")
         #Get sounds and sample_rates
         speech, sample_rate = speech
 
@@ -164,6 +167,8 @@ for i in range(epochs):
         id = idx+1
         torch.cuda.empty_cache()
         # print("<finished a batch")
+    print("<finished Epoch>")
+    
     if i == (epochs-1):
         torch.save(model.state_dict(), 'model_weights.pth')
         wandb.save('model_weights.pth')

@@ -33,15 +33,15 @@ class NoiseSpeechDataset(Dataset):
         np.random.shuffle(self.files_ns)
 
         # Sizes for each part of the array
-        size_train_data = int(len(self.files_ns) * 0.70)  # 70% of the total size
-        size_val_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
-        size_test_data = int(len(self.files_ns) * 0.15)  # 15% of the total size
+        self.size_train_data = int(len(self.files_ns) * 0.01)  # 70% of the total size
+        self.size_val_data = int(len(self.files_ns) * 0.015)  # 15% of the total size
+        self.size_test_data = int(len(self.files_ns) * 0.015)  # 15% of the total size
         
 
         #use a seed to shuffle - making each split identitical each time the dataset is initialized
-        split_train = int(size_train_data)
-        split_val = int(size_val_data) + split_train
-        split_test = int(size_test_data) + split_val + split_train
+        split_train = int(self.size_train_data)
+        split_val = int(self.size_val_data) + split_train
+        split_test = int(self.size_test_data) + split_val + split_train
 
         #Splits up the entire clean sound directory into three parts
         self.indicies_train = self.files_ns[0:split_train]
@@ -49,7 +49,9 @@ class NoiseSpeechDataset(Dataset):
         self.indicies_test = self.files_ns[split_val:split_test]
 
     def __len__(self):
-        return len(self.files_ns)
+        return self.size_train_data + self.size_val_data + self.size_test_data
+        # return len(self.files_ns)
+        
 
     def __getitem__(self, idx):         
         file_path = None
