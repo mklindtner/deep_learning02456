@@ -65,10 +65,12 @@ for i in range(epochs):
     g_pesq = 0
     g_si_sdr = 0
     g_mos = 0
+    print(len(data_loader_speech_train)) #7840
     for idx, speech in enumerate(data_loader_speech_train):
-        print("started data_loader_noise")
+
+        # print("started data_loader_noise")
         noise, _ = next(data_loader_noise)
-        print("passed data_loader_noise")
+        # print("passed data_loader_noise")
         #Get sounds and sample_rates
         speech, sample_rate = speech
 

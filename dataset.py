@@ -33,9 +33,9 @@ class NoiseSpeechDataset(Dataset):
         np.random.shuffle(self.files_ns)
 
         # Sizes for each part of the array
-        self.size_train_data = int(len(self.files_ns) * 0.01)  # 70% of the total size
-        self.size_val_data = int(len(self.files_ns) * 0.015)  # 15% of the total size
-        self.size_test_data = int(len(self.files_ns) * 0.015)  # 15% of the total size
+        self.size_train_data = int(len(self.files_ns) * 0.00001)  # 70% of the total size
+        self.size_val_data = int(len(self.files_ns) * 0.000015)  # 15% of the total size
+        self.size_test_data = int(len(self.files_ns) * 0.000015)  # 15% of the total size
         
 
         #use a seed to shuffle - making each split identitical each time the dataset is initialized
@@ -49,6 +49,8 @@ class NoiseSpeechDataset(Dataset):
         self.indicies_test = self.files_ns[split_val:split_test]
 
     def __len__(self):
+        if self.type == "noise":
+            return len(self.files_ns)
         return self.size_train_data + self.size_val_data + self.size_test_data
         # return len(self.files_ns)
         
