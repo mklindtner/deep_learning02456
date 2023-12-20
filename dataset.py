@@ -29,13 +29,13 @@ class NoiseSpeechDataset(Dataset):
             return
 
         #By using a seed we guarantee the shuffle is always the same for training, validation and test sets
-        np.random.seed(6977) 
+        np.random.seed(6979) 
         np.random.shuffle(self.files_ns)
 
         # Sizes for each part of the array
-        self.size_train_data = int(len(self.files_ns) * 0.00001)  # 70% of the total size
-        self.size_val_data = int(len(self.files_ns) * 0.000015)  # 15% of the total size
-        self.size_test_data = int(len(self.files_ns) * 0.000015)  # 15% of the total size
+        self.size_train_data = int(len(self.files_ns) * 0.004)  # 70% of the total size
+        self.size_val_data = int(len(self.files_ns) * 0.0006)  # 15% of the total size
+        self.size_test_data = int(len(self.files_ns) * 0.0006)  # 15% of the total size
         
 
         #use a seed to shuffle - making each split identitical each time the dataset is initialized
@@ -79,7 +79,7 @@ class NoiseSpeechDataset(Dataset):
         # print(seconds)
         # print("-----")
         if self.is_speech:
-            if seconds > 5: 
+            if seconds > 3: 
                 random_start = random.randrange(0, waveform.shape[1]-sample_rate*self.len_speech)
                 #print("Start:", random_start, " End: ",random_start+sample_rate*self.len_speech)
                 waveform = waveform[:,random_start:random_start+sample_rate*self.len_speech]
@@ -92,7 +92,7 @@ class NoiseSpeechDataset(Dataset):
                 z = torch.zeros(1,num_samples_to_pad) #waveform.shape[0]   
                 waveform = torch.cat((waveform,z),1)                
         else: #noise directory
-            if seconds > 5:
+            if seconds > 3:
                 random_start = random.randrange(0, waveform.shape[1]-sample_rate*len_speech)
                 waveform = waveform[:,random_start:random_start+sample_rate*self.len_speech]            
             else:
@@ -123,7 +123,7 @@ dataset_noise_full_path = "/work3/s164396/data/DNS-Challenge-4/datasets_fullband
 
 # Create the dataset and data loader
 target_sample_rate = 44100
-len_speech = 5
+len_speech = 3
 
 
 #Make sure to make a new noise loader, once the old one is exhausted
@@ -144,7 +144,7 @@ dataset_noise =  NoiseSpeechDataset(dataset_noise_full_path, target_sample_rate,
 g_bs = 1
 data_loader_speech_train = DataLoader(dataset_speech_train, batch_size=g_bs, shuffle=True)
 data_loader_speech_test = DataLoader(dataset_speech_test, batch_size=g_bs, shuffle=True)
-# data_loader_noise = DataLoader(dataset_noise, batch_size=g_bs, shuffle=True)
-data_loader_noise = noise_loader(dataset_noise)
+data_loader_noise = DataLoader(dataset_noise, batch_size=g_bs, shuffle=True)
+#data_loader_noise = noise_loader(dataset_noise)
 
 
