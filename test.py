@@ -16,7 +16,7 @@ from torchaudio.pipelines import SQUIM_OBJECTIVE, SQUIM_SUBJECTIVE
 # start a new wandb run to track this script
 wandb.init(
     # set the wandb project where this run will be logged
-    project="Model training",
+    project="Model Testing",
     
     # track hyperparameters and run metadata
     config={
@@ -24,7 +24,8 @@ wandb.init(
     "architecture": "DAC",
     "dataset": "Audio-DTU",
     "epochs": 10,
-    "loss": "MSE",
+    "loss": "Uknown",
+    "Metrics": "stoi, pesq, si_sdr, mos"
     }
 )
 
@@ -33,19 +34,22 @@ wandb.init(
 snr = SignalNoiseRatio().to('cuda')
 model_path = dac.utils.download(model_type="44khz")
 model = dac.DAC.load(model_path)
+model.load_state_dict(torch.load("model_weights.pth", map_location=torch.device('cpu')))
 model.to('cuda')
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
+model.eval()
+# optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
 epochs = 10
 
-#unsure
-idy, noise_test = (next(enumerate(data_loader_noise)))
-idy, speech_test = (next(enumerate(data_loader_speech_train)))
-speech_test, sample_rate = speech_test
-noise_test, _ = noise_test
 
-signal_test = F.add_noise(speech_test, noise_test, snr=torch.tensor([[2.0]]))
-signal_test = AudioSignal(signal_test, sample_rate=sample_rate)
-signal_test.to('cuda')
+#unsure
+# idy, noise_test = (next(enumerate(data_loader_noise)))
+# idy, speech_test = (next(enumerate(data_loader_speech_train)))
+# speech_test, sample_rate = speech_test
+# noise_test, _ = noise_test
+
+# signal_test = F.add_noise(speech_test, noise_test, snr=torch.tensor([[2.0]]))
+# signal_test = AudioSignal(signal_test, sample_rate=sample_rate)
+# signal_test.to('cuda')
 
 
 #testing variables
@@ -61,7 +65,16 @@ g_stoi = 0
 g_pesq = 0
 g_si_sdr = 0
 g_mos = 0
+
 #Load the model weights
+# best_model = wandb.restore('model_weights.pth', run_path="lavanyashukla/save_and_restore/10pr4joa")
+#https://wandb.ai/wandb/common-ml-errors/reports/How-to-Save-and-Load-Models-in-PyTorch--VmlldzozMjg0MTE
+#https://wandb.ai/lavanyashukla/save_and_restore/reports/Saving-and-Restoring-Machine-Learning-Models-with-W-B--Vmlldzo3MDQ3Mw
+# best_model = torch.load('model_weights.pth')
+# best_model.to('cuda')
+# best_model.eval()
+
+
 #model.load_state_dict(torch.load("path_to_your_saved_model.pth", map_location=torch.device('cpu')))
 for idx, speech in enumerate(data_loader_speech_test):
     noise, _ = next(data_loader_noise)
@@ -74,13 +87,23 @@ for idx, speech in enumerate(data_loader_speech_test):
     signal.to('cuda')
     speech = speech.to('cuda')
     #Use Decript Model To encode
+    # x = model.preprocess(signal.audio_data, signal.sample_rate)
+    # z, codes, latents, _, _ = model.encode(x) 
+    # y_orig = model.decode(z)        
+
+    #Use best model to encode
+    print("<using best model>")
     x = model.preprocess(signal.audio_data, signal.sample_rate)
     z, codes, latents, _, _ = model.encode(x) 
-    y_orig = model.decode(z)        
+    y_orig = model.decode(z)   
+    print(f"x: {x.shape}\t z: {z.shape}\t codes: {codes.shape}\t latents: {latents.shape}\t y_orig: {y_orig.shape}"")
+    print("<finished using best model>")
+
     # print(f"y_orig: {y_orig.shape}\t y_orig2: {y_orig[0].shape}")
 
     #Loss SNR here
     y = y_orig[:, :, :speech.size(2)]
+
     # print(f"y_orig: {y_orig.shape}\t y: {y.shape}")
     snr = snr(y, speech)
     # loss = 1/snr(y, speech)
@@ -104,9 +127,8 @@ for idx, speech in enumerate(data_loader_speech_test):
     stoi_hyp, pesq_hyp, si_sdr_hyp = squim_objective_model(y_resampled[0])
     
     #print(f"signal-to-noise: {snr_dbs[0]}")
-    #print(f"objective model metrics: stoi_hyp: {stoi_hyp[0]}\t pesq_hyp: {pesq_hyp[0]}\t si_sdr_hyp: {si_sdr_hyp[0]}")
+    print(f"objective model metrics: stoi_hyp: {stoi_hyp[0]}\t pesq_hyp: {pesq_hyp[0]}\t si_sdr_hyp: {si_sdr_hyp[0]}")
     
-
     #subjective model metrics
 
     #Use CPU because we run out of memory on the GPU
@@ -147,6 +169,7 @@ for idx, speech in enumerate(data_loader_speech_test):
     torch.cuda.empty_cache()
     # print("<finished a batch")
 #print(f'epoch: {i}\t avg loss: {g_loss/id} \t avg metric: {g_metrics/id}')
+print(f"snr: {g_snr/id}\t loss: {g_loss/id}\t stoi: {g_stoi/id}\t pesq: {g_pesq/id}\t si_sdr: {g_si_sdr/id}\t mos: {g_mos/id}")
 wandb.log({"snr": g_snr/id, "loss": g_loss/id, "stoi": g_stoi/id, "pesq": g_pesq/id, "si_sdr": g_si_sdr/id, "mos": g_mos/id})
 #validation set here
 

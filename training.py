@@ -57,6 +57,10 @@ tst_cnt = 0
 squim_objective_model = SQUIM_OBJECTIVE.get_model().to('cuda')
 squim_subjective_model = SQUIM_SUBJECTIVE.get_model().to('cpu')
 id = 0
+
+# best_model = wandb.restore('')
+
+
 #Epochs
 for i in range(epochs):
     g_loss = 0
@@ -79,6 +83,11 @@ for i in range(epochs):
         # Combine noise, speech
         snr_dbs = torch.tensor([[2.0]])
         signal = F.add_noise(speech,noise, snr=snr_dbs)
+
+        if torch.isnan(signal).any():
+            print("NaN values detected in signal.audio_data, SKIPPING")
+            continue
+        
         signal = AudioSignal(signal, sample_rate=sample_rate)
         if tst_cnt == 0:
             print(f"idx: {tst_cnt}")        
