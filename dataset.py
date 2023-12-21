@@ -33,9 +33,10 @@ class NoiseSpeechDataset(Dataset):
         np.random.shuffle(self.files_ns)
 
         # Sizes for each part of the array
-        self.size_train_data = int(len(self.files_ns) * 0.004)  # 70% of the total size
-        self.size_val_data = int(len(self.files_ns) * 0.0006)  # 15% of the total size
-        self.size_test_data = int(len(self.files_ns) * 0.0006)  # 15% of the total size
+        # 0.0052, 0.0011, 0.0011
+        self.size_train_data = int(len(self.files_ns) * 0.0052)  # 70% of the total size, 1000 training files
+        self.size_val_data = int(len(self.files_ns) * 0.0011)  # 15% of the total size, 200 validation files
+        self.size_test_data = int(len(self.files_ns) * 0.0011)  # 15% of the total size, 200  validation files
         #[a,b,c] -> [train,test,val] 
 
         #use a seed to shuffle - making each split identitical each time the dataset is initialized
@@ -51,8 +52,17 @@ class NoiseSpeechDataset(Dataset):
     def __len__(self):
         if self.type == "noise":
             return len(self.files_ns)
-        return self.size_train_data + self.size_val_data + self.size_test_data
-        # return len(self.files_ns)
+
+        if self.type == "train":
+            return self.size_train_data
+
+        if self.type == "val":
+            return self.size_val_data
+
+        if self.type == "test":
+            return self.size_test_data    
+        # return self.size_train_data + self.size_val_data + self.size_test_data
+        
         
 
     def __getitem__(self, idx):         
@@ -138,12 +148,15 @@ def noise_loader(dataset):
 #Dataset
 dataset_speech_train = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="train")
 dataset_speech_test = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="test")
+dataset_speech_val = NoiseSpeechDataset(dataset_clean_speech_full_path, target_sample_rate, len_speech, is_speech=True, dataset_type="val")
 dataset_noise =  NoiseSpeechDataset(dataset_noise_full_path, target_sample_rate, len_speech, is_speech=False, dataset_type="noise")
 
 #Loaders 
 g_bs = 1
 data_loader_speech_train = DataLoader(dataset_speech_train, batch_size=g_bs, shuffle=True)
 data_loader_speech_test = DataLoader(dataset_speech_test, batch_size=g_bs, shuffle=True)
+data_loader_speech_val = DataLoader(dataset_speech_val, batch_size=g_bs, shuffle=True)
+
 # data_loader_noise = DataLoader(dataset_noise, batch_size=g_bs, shuffle=True)
 data_loader_noise = noise_loader(dataset_noise)
 
