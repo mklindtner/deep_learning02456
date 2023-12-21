@@ -164,7 +164,7 @@ for i in range(epochs):
     if i == (epochs-1):
         torch.save(model.state_dict(), 'model_weights.pth')
         wandb.save('model_weights.pth')
-    #print(f'epoch: {i}\t avg loss: {g_loss/id} \t avg metric: {g_metrics/id}')
+    # print(f'epoch: {i}\t avg loss: {g_loss/id} \t avg metric: {g_metrics/id}')
     #wandb.log({"snr": g_metrics/id, "loss": g_loss/id, "stoi": g_stoi/id, "pesq": g_pesq/id, "si_sdr": g_si_sdr/id, "mos": g_mos/id})
     print("loss:", g_loss)
     wandb.log({"avg loss": g_loss/leng})

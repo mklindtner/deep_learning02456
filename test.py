@@ -1,6 +1,6 @@
 import dac
 import os
-from dataset import data_loader_speech_test, data_loader_noise
+from dataset import data_loader_speech_test, data_loader_noise, data_loader_speech_train
 from squim import si_snr
 import torchaudio.functional as F
 import torch
@@ -30,14 +30,20 @@ wandb.init(
 )
 
 
-# from torchmetrics.audio import SignalNoiseRatio
-snr = SignalNoiseRatio().to('cuda')
-model_path = dac.utils.download(model_type="44khz")
-model = dac.DAC.load(model_path)
-model.load_state_dict(torch.load("model_weights.pth", map_location=torch.device('cpu')))
+
+# wandb_run_path = "02456_deep_learning/Real Model training /run-jlwsdjox-history:v0"
+# wandb.login(key='4a595c366bf1f5a47fd767a729ab0945225a84a0')
+# artifact = wandb.use_artifact(wandb_run_path)
+# model_dir = artifact.download()
+# model_path = model_dir + "/model_weights.pth"
+model_dl = dac.utils.download(model_type="44khz")
+model = dac.DAC.load(model_dl)
+# model.load_state_dict(torch.load("model_weights_finished.pth"))
 model.to('cuda')
-model.eval()
-# optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
+# model.eval()
+
+# model.load_state_dict(torch.load("model_weights.pth", map_location=torch.device('cpu')))
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
 epochs = 10
 
 
@@ -45,7 +51,7 @@ epochs = 10
 # idy, noise_test = (next(enumerate(data_loader_noise)))
 # idy, speech_test = (next(enumerate(data_loader_speech_train)))
 # speech_test, sample_rate = speech_test
-# noise_test, _ = noise_test
+# noise, _ = noise_test
 
 # signal_test = F.add_noise(speech_test, noise_test, snr=torch.tensor([[2.0]]))
 # signal_test = AudioSignal(signal_test, sample_rate=sample_rate)
@@ -58,50 +64,83 @@ tst_cnt = 0
 #Metric models
 squim_objective_model = SQUIM_OBJECTIVE.get_model().to('cuda')
 squim_subjective_model = SQUIM_SUBJECTIVE.get_model().to('cpu')
+snr = SignalNoiseRatio().to('cuda')
 id = 0
+
+
+# Epochs here
 g_loss = 0
 g_snr = 0
 g_stoi = 0
 g_pesq = 0
 g_si_sdr = 0
 g_mos = 0
-
-#Load the model weights
-# best_model = wandb.restore('model_weights.pth', run_path="lavanyashukla/save_and_restore/10pr4joa")
-#https://wandb.ai/wandb/common-ml-errors/reports/How-to-Save-and-Load-Models-in-PyTorch--VmlldzozMjg0MTE
-#https://wandb.ai/lavanyashukla/save_and_restore/reports/Saving-and-Restoring-Machine-Learning-Models-with-W-B--Vmlldzo3MDQ3Mw
-# best_model = torch.load('model_weights.pth')
-# best_model.to('cuda')
-# best_model.eval()
-
-
-#model.load_state_dict(torch.load("path_to_your_saved_model.pth", map_location=torch.device('cpu')))
-for idx, speech in enumerate(data_loader_speech_test):
+# wandb.log({"memory": })
+print(f"<starting testing2>")
+for idx, speech in enumerate(data_loader_speech_train):
     noise, _ = next(data_loader_noise)
+############
+ # print("started data_loader_noise")
+    # noise, _ = next(data_loader_noise)
+    # # print("passed data_loader_noise")
+    # #Get sounds and sample_rates
+    # speech, sample_rate = speech
+
+    # noise.to('cuda')
+
+    # # Combine noise, speech
+    # snr_dbs = torch.tensor([[2.0]])
+    # signal = F.add_noise(speech,noise, snr=snr_dbs)
+
+    # if torch.isnan(signal).any():
+    #     print("NaN values detected in signal.audio_data, SKIPPING")
+    #     continue
+    
+    # signal = AudioSignal(signal, sample_rate=sample_rate)
+    # if tst_cnt == 0:
+    #     print(f"idx: {tst_cnt}")        
+    #     signal.write(f'input_sounds/input_test2{tst_cnt}.wav')                
+    #     tst_cnt += 1
+
+    # signal.to('cuda')
+    # speech = speech.to('cuda')
+    
+    # #Use Decript Model To encode
+    # x = model.preprocess(signal.audio_data, signal.sample_rate)
+    # z, codes, latents, _, _ = model.encode(x) 
+    # y_orig = model.decode(z)      
+
+###########  
     #Get sounds and sample_rates
     speech, sample_rate = speech
     noise.to('cuda')
     snr_dbs = torch.tensor([[2.0]])
     signal = F.add_noise(speech,noise, snr=snr_dbs)
+    
+    if torch.isnan(signal).any():
+        print("NaN values detected in signal.audio_data, SKIPPING")
+        continue        
+
     signal = AudioSignal(signal, sample_rate=sample_rate)
     signal.to('cuda')
     speech = speech.to('cuda')
+
     #Use Decript Model To encode
-    # x = model.preprocess(signal.audio_data, signal.sample_rate)
-    # z, codes, latents, _, _ = model.encode(x) 
-    # y_orig = model.decode(z)        
+    x = model.preprocess(signal.audio_data, signal.sample_rate)
+    z, codes, latents, _, _ = model.encode(x) 
+    y_orig = model.decode(z)
 
     #Use best model to encode
     print("<using best model>")
     x = model.preprocess(signal.audio_data, signal.sample_rate)
     z, codes, latents, _, _ = model.encode(x) 
     y_orig = model.decode(z)   
-    print(f"x: {x.shape}\t z: {z.shape}\t codes: {codes.shape}\t latents: {latents.shape}\t y_orig: {y_orig.shape}"")
+    print(f"x: {x.shape}\t z: {z.shape}\t codes: {codes.shape}\t latents: {latents.shape}\t y_orig: {y_orig.shape}")
     print("<finished using best model>")
 
-    # print(f"y_orig: {y_orig.shape}\t y_orig2: {y_orig[0].shape}")
+    print(f"y_orig: {y_orig.shape}\t y_orig2: {y_orig[0].shape}")
 
-    #Loss SNR here
+
     y = y_orig[:, :, :speech.size(2)]
 
     # print(f"y_orig: {y_orig.shape}\t y: {y.shape}")
@@ -140,13 +179,10 @@ for idx, speech in enumerate(data_loader_speech_test):
 
     # see https://pytorch.org/audio/main/tutorials/squim_tutorial.html for usage of this last metric
     # print(f"si_snr: {squim_snr}")
-    
-    
-    # if tst_cnt == 0:
-    #     print(f"<breaking>")        
-    #     break
-    #     # signal.write(f'input_sounds/input_test2{tst_cnt}.wav')                
-    #     # tst_cnt += 1
+    #Optimizer
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()  
 
     #Loss output
     '''y_audio_signal = AudioSignal(y.cpu().detach().numpy(), sample_rate=sample_rate)
@@ -166,13 +202,11 @@ for idx, speech in enumerate(data_loader_speech_test):
 
     #Store squim_metrics here
     id = idx+1
-    torch.cuda.empty_cache()
-    # print("<finished a batch")
+    # torch.cuda.empty_cache()
+    print("<finished a batch")
 #print(f'epoch: {i}\t avg loss: {g_loss/id} \t avg metric: {g_metrics/id}')
 print(f"snr: {g_snr/id}\t loss: {g_loss/id}\t stoi: {g_stoi/id}\t pesq: {g_pesq/id}\t si_sdr: {g_si_sdr/id}\t mos: {g_mos/id}")
 wandb.log({"snr": g_snr/id, "loss": g_loss/id, "stoi": g_stoi/id, "pesq": g_pesq/id, "si_sdr": g_si_sdr/id, "mos": g_mos/id})
-#validation set here
-
 
 #save model weights
 # if i == (epochs-1):
