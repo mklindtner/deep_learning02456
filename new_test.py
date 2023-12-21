@@ -19,10 +19,10 @@ mse_loss = torch.nn.MSELoss()
 snr = SignalNoiseRatio().to('cuda')
 si_snr = ScaleInvariantSignalNoiseRatio().to('cuda')
 
-# model_path = dac.utils.download(model_type="44khz")
-# model = dac.DAC.load(model_path)
-# model.load_state_dict(torch.load("model_weights_mae.pth"))
-# model.to('cuda')
+model_path = dac.utils.download(model_type="44khz")
+model = dac.DAC.load(model_path)
+model.load_state_dict(torch.load("model_weights_mae.pth"))
+model.to('cuda')
 
 # model_path = dac.utils.download(model_type="44khz")
 # model = dac.DAC.load(model_path)
@@ -34,10 +34,10 @@ si_snr = ScaleInvariantSignalNoiseRatio().to('cuda')
 # model.load_state_dict(torch.load("model_weights_si_snr.pth"))
 # model.to('cuda')
 
-model_path = dac.utils.download(model_type="44khz")
-model = dac.DAC.load(model_path)
-model.load_state_dict(torch.load("model_weights_snr.pth"))
-model.to('cuda')
+# model_path = dac.utils.download(model_type="44khz")
+# model = dac.DAC.load(model_path)
+# model.load_state_dict(torch.load("model_weights_snr.pth"))
+# model.to('cuda')
 
 
 epochs = 10
@@ -90,6 +90,8 @@ with torch.no_grad():
 
             #Change y_orig to be the same size as speech
             y = y_orig[:, :, :speech.size(2)]
+
+            y = signal.audio_data
             
             #LOSS
             loss = mse_loss(y, speech)
